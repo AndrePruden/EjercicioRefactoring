@@ -1,4 +1,5 @@
 import { EmployeesRepository } from "./EmployeesRepository";
+import { MailSender } from "./MailSender";
 
 export class BirthdayService {
   constructor() {
@@ -6,6 +7,7 @@ export class BirthdayService {
 
   sendGreetings(ourDate, fileName, smtpUrl, smtpPort, transport) {
     const employeesRepository = new EmployeesRepository(fileName);
+    const mailSender = new MailSender(transport)
     const employees = employeesRepository.getEmployeesByBirthDate(ourDate);
 
     employees.forEach(employee => {
@@ -17,7 +19,7 @@ export class BirthdayService {
         subject: "Happy Birthday!",
         text: `Happy Birthday, dear ${employee.getFirstName()}!`,
       };
-      transport.sendMail(message);
+      mailSender.sendMail(message);
     });
   }
 }
