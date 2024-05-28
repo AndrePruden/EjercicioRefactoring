@@ -1,24 +1,14 @@
-import fs from "fs";
-import path from "path";
-import { Employee } from "./Employee";
+import { EmployeesRepository } from "./EmployeesRepository";
 
 export class BirthdayService {
-  constructor() {}
+  constructor() {
+  }
 
   sendGreetings(ourDate, fileName, smtpUrl, smtpPort, transport) {
-    const data = fs.readFileSync(
-      path.resolve(__dirname, `${fileName}`), //`../${fileName}`),
-      "UTF-8"
-    );
+    const employeesRepository = new EmployeesRepository(fileName);
+    const employees = employeesRepository.getEmployeesByBirthDate(ourDate);
 
-    // split the contents by new line
-    const lines = data.split(/\r?\n/);
-    lines.shift();
-    const employees = lines
-      .map((line) => this.createEmployeeFromLine(line))
-      .filter((employee) => employee.isBirthday(ourDate));
-
-    employees.forEach((employee) => {
+    employees.forEach(employee => {
       const message = {
         host: smtpUrl,
         port: smtpPort,
@@ -29,16 +19,5 @@ export class BirthdayService {
       };
       transport.sendMail(message);
     });
-  }
-
-  createEmployeeFromLine(line) {
-    const employeeData = line.split(", ");
-    const employee = new Employee(
-      employeeData[1],
-      employeeData[0],
-      employeeData[2],
-      employeeData[3]
-    );
-    return employee;
   }
 }
